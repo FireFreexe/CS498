@@ -6,7 +6,7 @@ on:
     branches:
       - main
     paths:
-      - 'Build/**' # Optional: Only triggers if files in the Build folder actually changed
+      - 'WebBuild/**' # Optional: Only triggers if files in the Build folder actually changed
 
 jobs:
   deploy:
@@ -22,8 +22,8 @@ jobs:
           REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
           REMOTE_USER: ${{ secrets.REMOTE_USER }}
           # The trailing slash on Build/ is critical. It copies the CONTENTS of the folder, not the folder itself.
-          SOURCE: "Build/" 
-          TARGET: "/var/www/paper.freexe.net/"
+          SOURCE: "WebBuild/" 
+          TARGET: "/var/www/dev.freexe.net/"
           # -avz: Archive, verbose, compress
           # --delete: Removes files on the server that are no longer in your GitHub Build folder
           # --exclude: Protects your .htaccess file from being deleted or overwritten
