@@ -1,0 +1,55 @@
+name: Deploy Unity WebGL (Multi-Branch)
+
+# Trigger the action only when changes are pushed to the main branch
+on:
+  push:
+    branches:
+      - main
+      - lucy's-branch
+      - Casey
+      - Evyn
+      - Kaitlyn
+      - bella
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: Tailscale
+        uses: tailscale/github-action@v2
+        with:
+          authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+
+      - name: Set Target Directory
+        id: vars
+        run: |
+          if [[ "${{ github.ref_name }}" == "main" ]]; then
+            echo "dir=/var/www/dev.freexe.net/" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref_name }}" == "lucy's-branch" ]]; then
+            echo "dir=/var/www/lucy.freexe.net/" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref_name }}" == "Casey" ]]; then
+            echo "dir=/var/www/casey.freexe.net/" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref_name }}" == "Evyn" ]]; then
+            echo "dir=/var/www/evyn.freexe.net/" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref_name }}" == "Kaitlyn" ]]; then
+            echo "dir=/var/www/kaitlyn.freexe.net/" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref_name }}" == "bella" ]]; then
+            echo "dir=/var/www/bella.freexe.net/" >> $GITHUB_OUTPUT
+          fi
+        
+      - name: Deploy to Server via Rsync
+        uses: easingthemes/ssh-deploy@main
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
+          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+          REMOTE_USER: ${{ secrets.REMOTE_USER }}
+          # The trailing slash on Build/ is critical. It copies the CONTENTS of the folder, not the folder itself.
+          SOURCE: "WebBuild/" 
+          TARGET: ${{ steps.vars.outputs.dir }}
+          # -avz: Archive, verbose, compress
+          # --delete: Removes files on the server that are no longer in your GitHub Build folder
+          # --exclude: Protects your .htaccess file from being deleted or overwritten
+          ARGS: "-avz --delete --exclude='.htaccess'"
