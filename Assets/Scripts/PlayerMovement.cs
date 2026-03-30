@@ -59,6 +59,24 @@ public class PlayerMovement : MonoBehaviour
             return;
         }
 
+        bool hitBlockingWall = false;
+        for (int i = 0; i < collision.contactCount; i++)
+        {
+            Vector2 wallNormal = collision.GetContact(i).normal;
+
+            // Stop only when the wall faces against our movement direction.
+            if (Vector2.Dot(movementDirection, wallNormal) < -0.5f)
+            {
+                hitBlockingWall = true;
+                break;
+            }
+        }
+
+        if (!hitBlockingWall)
+        {
+            return;
+        }
+
         movementDirection = Vector2.zero;
         rb.linearVelocity = Vector2.zero;
         canChooseDirection = true;
